@@ -3,7 +3,9 @@ meta-sln
 
 This is a proof-of-concept that allows you to work with multiple solutions spread over multiple repositories, as if the projects were all in one single mono-solution.
 
-It's worth noting that the current implementation is completely incomprehensible. To be fixed.
+The only way this depends on [meta](https://github.com/mateodelnorte/meta) is that it stops searching for dependencies in the directory containining the `.meta` folder, so it can easily be adapted to work without meta-repo's.
+
+It's also worth noting that the current implementation is completely incomprehensible. To be fixed.
 
 What on earth is this thing?
 ----------------------------
