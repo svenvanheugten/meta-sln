@@ -1,5 +1,7 @@
 import sys
 import glob
+import time
+import requests
 import os.path
 import subprocess
 import xml.etree.ElementTree as ET
@@ -66,6 +68,36 @@ def smudge(path, data):
     return ET.tostring(root).decode('utf8')
 
 
+def wait(url):
+    # TODO: use the current git state here instead of the filesystem
+    own_git_dir = get_root_dir(os.getcwd(), '.git')
+    all_projects = glob.glob(os.path.join(get_root_dir(os.getcwd(), '.meta'), '**/*.csproj'), recursive=True)
+    our_projects = glob.glob(os.path.join(own_git_dir, '**/*.csproj'), recursive=True)
+    waiting_for = set()
+    for our_project in our_projects:
+        root = ET.parse(our_project)
+        for item_group in root.findall('ItemGroup'):
+            for project_reference in item_group.findall('ProjectReference'):
+                abs_referenced_csproj_path = os.path.normpath(
+                    os.path.join(
+                        os.path.dirname(our_project),
+                        project_reference.get('Include').replace('\\', '/')
+                    )
+                )
+                referenced_git_dir = get_root_dir(os.path.dirname(abs_referenced_csproj_path), '.git')
+                if own_git_dir != referenced_git_dir:
+                    project_name = os.path.basename(abs_referenced_csproj_path[:-7])
+                    project_version = get_git_version(referenced_git_dir)
+                    waiting_for.add((project_name, project_version))
+    for (project_name, project_version) in waiting_for:
+        while True:
+            print('Waiting for ' + str(project_name) + ' ' + str(project_version) + '...')
+            request = requests.head(url + '/' + project_name.lower() + '/' + project_version + '.json')
+            if request.status_code == 200:
+                break
+            time.sleep(10)
+
+
 if __name__ == '__main__':
     try:
         get_root_dir(os.getcwd(), '.meta')
@@ -79,3 +111,8 @@ if __name__ == '__main__':
         sys.stdout.write(clean(sys.argv[2], sys.stdin.read()))
     elif sys.argv[1] == 'smudge':
         sys.stdout.write(smudge(sys.argv[2], sys.stdin.read()))
+    elif sys.argv[1] == 'wait':
+        wait(sys.argv[2])
+    else:
+        print('Wat', file=sys.stderr)
+        exit(1)
