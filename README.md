@@ -59,7 +59,7 @@ You will find that your local copy of `Implementation.csproj` looks like this:
 </Project>
 ```
 
-However, when you commit it, it is still a `PackageReference` with a version number, which is bumped up automatically whenever the `Interfaces`-project changes (TODO: deal with https://stackoverflow.com/a/41935511/810354).
+However, when you commit it, it is still a `PackageReference` with a version number, which is bumped up automatically whenever the `Interfaces`-project changes.
 
 When you finally go ahead and `meta git push` everything, we need to make sure the new `Interfaces`-package is built and pushed _before_ the `Implementation`-package. The `git push`-commands run in the order of the `.meta` file, and the pre-push hook waits for the dependencies of every project to become available on the NuGet server before pushing it, simulating the phased deploy you would normally do yourselves.
 
@@ -87,6 +87,22 @@ Create `~/.config/git/hooks/pre-push`:
 #!/bin/bash
 
 python ~/meta-sln/meta-sln.py wait https://api.nuget.org/v3/registration3
+```
+
+Create `~/.config/git/hooks/post-commit`:
+
+```bash
+#!/bin/bash
+
+python ~/meta-sln/meta-sln.py touch
+```
+
+Create `~/.config/git/hooks/post-checkout`:
+
+```bash
+#!/bin/bash
+
+python ~/meta-sln/meta-sln.py touch
 ```
 
 Now run `git config --global core.hooksPath ~/.config/git/hooks`.

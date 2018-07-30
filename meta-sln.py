@@ -98,11 +98,21 @@ def wait(url):
             time.sleep(10)
 
 
+def touch():
+    projects = glob.glob(os.path.join(get_root_dir(os.getcwd(), '.meta'), '**/*.csproj'), recursive=True)
+    for project in projects:
+        with open(project, 'a'):
+            os.utime(project, None)
+
+
 if __name__ == '__main__':
     try:
         get_root_dir(os.getcwd(), '.meta')
     except ValueError:
         sys.stdout.write(sys.stdin.read())
+        exit(0)
+    if len(sys.argv) == 2 and sys.argv[1] == 'touch':
+        touch()
         exit(0)
     if len(sys.argv) != 3:
         print('Invalid arguments', file=sys.stderr)
