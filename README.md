@@ -47,7 +47,7 @@ meta git clone https://github.com/svenvanheugten/meta-sln-test
 
 You will find that your local copy of `Implementation.csproj` looks like this:
 
-```cs
+```xml
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
