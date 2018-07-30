@@ -43,6 +43,7 @@ Clone the [meta](https://github.com/mateodelnorte/meta)-repo [meta-sln-test](htt
 
 ```bash
 meta git clone https://github.com/svenvanheugten/meta-sln-test
+meta git checkout .  # fix unmodified csproj files showing up as modified just after the initial clone
 ```
 
 You will find that your local copy of `Implementation.csproj` looks like this:

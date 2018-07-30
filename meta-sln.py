@@ -101,8 +101,16 @@ def wait(url):
 def touch():
     projects = glob.glob(os.path.join(get_root_dir(os.getcwd(), '.meta'), '**/*.csproj'), recursive=True)
     for project in projects:
-        with open(project, 'a'):
-            os.utime(project, None)
+        with open(project, 'r+') as f:
+            # this runs on every commit and checkout, for two reasons:
+            # (i)  update the modification time of all *.csproj to force `git status` to re-run the `clean` filter,
+            #      allowing the version numbers to bump up. see: https://stackoverflow.com/a/41935511/810354
+            # (ii) smudging the initial clone
+            data = f.read()
+            f.seek(0)
+            f.write(smudge(project, data))
+            f.truncate()
+            f.close()
 
 
 if __name__ == '__main__':
